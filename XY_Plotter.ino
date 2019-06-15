@@ -1,5 +1,3 @@
-#include <AccelStepper.h>
-#include <MultiStepper.h>
 #include <Servo.h>
 #include <Stepper.h>
 
@@ -23,14 +21,12 @@ const int SERVO_PIN = 3;
 const int PEN_DOWN_POS = 145;
 const int PEN_UP_POS = 155;
 
-// Define two motor objects
 // The sequence 1-3-2-4 is required for proper sequencing of 28BYJ48
-AccelStepper stepper1(HALFSTEP, motorPin1, motorPin3, motorPin2, motorPin4);
-AccelStepper stepper2(FULLSTEP, motorPin5, motorPin7, motorPin6, motorPin8);
+Stepper *steppers[2];
+Stepper stepper1(200, motorPin1, motorPin3, motorPin2, motorPin4);
+Stepper stepper2(200, motorPin5, motorPin7, motorPin6, motorPin8);
 
-MultiStepper multiStepper;
-
-long positions[2]; //array to be used for target positions to be passed
+long deltas[2]; //array to be used for target movements for each stepper
 
 void penDown() {
   Serial.println("Pen down");
@@ -50,16 +46,80 @@ int readByte() {
   return Serial.read();
 }
 
+void moveSteppers() {
+  if (deltas[0] == 0 && deltas[1] == 0) return;
+  
+  int small, big;
+  if (abs(deltas[0]) < abs(deltas[1])) {
+    small = 0;
+    big = 1;
+  } else {
+    small = 1;
+    big = 0;
+  }
+
+  float ratio = 0;
+  
+  if (deltas[big] != 0) {
+    ratio = (float)abs(deltas[small]) / (float)abs(deltas[big]);
+  }
+  
+  float smallExpectedStepsComplete = 0.0;
+  int stepsComplete[2];
+  stepsComplete[small] = 0;
+  stepsComplete[big] = 0;
+  while (abs(stepsComplete[small]) < abs(deltas[small])) {
+
+    //Step bigger one
+    if (deltas[big] > 0) {
+      stepsComplete[big]++;
+      (*steppers[big]).step(1);
+    } else {
+      stepsComplete[big]--;
+      (*steppers[big]).step(-1);
+    }
+
+    //Step smaller one
+    if (deltas[small] > 0) {
+      smallExpectedStepsComplete += ratio;
+      if ((int)smallExpectedStepsComplete > stepsComplete[small]) {
+        stepsComplete[small]++;
+        (*steppers[small]).step(1);
+      }
+    } else {
+      smallExpectedStepsComplete -= ratio;
+      if ((int)smallExpectedStepsComplete < stepsComplete[small]) {
+        stepsComplete[small]--;
+        (*steppers[small]).step(-1);
+      }
+    }
+    
+    delay(4);
+  }
+
+  //Finish any remaining steps
+  while (abs(stepsComplete[small]) < abs(deltas[small])) {
+    if (deltas[small] > 0) {
+      (*steppers[small]).step(1);
+      stepsComplete[small]++;
+    } else {
+      (*steppers[small]).step(-1);
+      stepsComplete[small]--;
+    }
+
+    delay(4);
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
   myservo.attach(SERVO_PIN);
-  penUp();
 
-  stepper1.setMaxSpeed(1000.0);
-  stepper2.setMaxSpeed(1000.0);
-  multiStepper.addStepper(stepper1);
-  multiStepper.addStepper(stepper2);
+  steppers[0] = &stepper1;
+  steppers[1] = &stepper2;
+  
+  penUp();
 }
 
 void loop() {
@@ -80,27 +140,17 @@ void loop() {
     }
   } else if (incomingByte == 'm') {
     Serial.print("received move command\n");
-    
-    positions[0] = (readByte() - 'a') * 100;
-    positions[1] = (readByte() - 'a') * 100;
+
+    deltas[1] = Serial.parseInt();
+    deltas[0] = -Serial.parseInt();
 
     Serial.print("positions: ");
-    Serial.print(positions[0], DEC);
+    Serial.print(deltas[0], DEC);
     Serial.print(" ");
-    Serial.print(positions[1], DEC);
+    Serial.print(deltas[1], DEC);
     Serial.print("\n");
 
-//    multiStepper.moveTo(positions);
-//    multiStepper.runSpeedToPosition();
-    stepper1.moveTo(positions[0]);
-    stepper2.moveTo(positions[1]);
-    stepper1.runToPosition();
-    stepper2.runToPosition();
-  } else if (incomingByte == 's') {
-    Serial.print("received set position command\n");
-
-    stepper1.setCurrentPosition(readByte());
-    stepper2.setCurrentPosition(readByte());
+    moveSteppers();
   } else {
     Serial.print("first byte of command is invalid\n");
   }
