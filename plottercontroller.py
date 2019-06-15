@@ -4,7 +4,7 @@ import time
 
 
 class PlotterController:
-    def __init__(self, port_regex=r'(/dev/cu.usbmodem).{6}'):
+    def __init__(self, port_regex=r'(/dev/cu.usbmodem)'):
         available_ports = list(list_ports.grep(port_regex))
 
 

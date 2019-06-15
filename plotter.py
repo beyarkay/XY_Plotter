@@ -10,14 +10,31 @@ class Plotter(object):
         self.w = None
         self.plotter_controller = PlotterController()
         self.STEPS_PER_CM = 1000 / 4
+        self.file = None
+        
+        self.restore_stw()
+    
+    def save_stw(self):
+        with open('save.txt', 'w') as self.file:
+            print(self.s, file=self.file)
+            print(self.t, file=self.file)
+            print(self.w, file=self.file)
+    
+    def restore_stw(self):
+        with open('save.txt', 'r') as self.file:
+            self.s = int(next(self.file))
+            self.t = int(next(self.file))
+            self.w = int(next(self.file))
+    
+    def move_to_st(self, s, t):
+        self.move_st(s - self.s, t - self.t)
 
     def move_st(self, delta_s, delta_t):
         print(f"Moving: delta_s={delta_s}, delta_t={delta_t}")
-        self.plotter_controller.move(-delta_s, -delta_t)
+        self.plotter_controller.move(delta_s, delta_t)
         self.s += delta_s
         self.t += delta_t
         print("s, t, w = " + str(self.get_stw_pos()))
-
 
     def move(self, delta_x, delta_y):
         print(f"Moving: delta_x={delta_x}, delta_y={delta_y}")
@@ -25,6 +42,12 @@ class Plotter(object):
         delta_t = math.floor(math.sqrt((self.w - delta_x) ** 2 + delta_y ** 2))
         self.move_st(delta_s, delta_t)
         print("s, t, w = " + str(self.get_stw_pos()))
+    
+    def move_to_xy(self, x, y):
+        s = int(math.sqrt(x**2 + y**2))
+        t = int(math.sqrt((self.w - x)**2 + y**2))
+        self.move_to_st(s, t)
+        self.save_stw()
 
     def calibrate(self, s=None, t=None, w=None):
         if s and t and w:
@@ -67,6 +90,7 @@ class Plotter(object):
 
             self.w = self.s
         print(f"Calibration complete, s={self.s}, t={self.t}, w={self.w}")
+        self.save_stw()
 
     def get_stw_pos(self):
         return self.s, self.t, self.w
@@ -74,25 +98,18 @@ class Plotter(object):
 
 if __name__ == '__main__':
     plotter = Plotter()
-    # s=6550, t=0, w=6550
-    # plotter.calibrate(s=6250, t=0, w=6250)
-    plotter.calibrate(6650.0, 31251.59989761311, 6250)
+    plotter.calibrate()
 
     while True:
         amount = input("s t:")
         if amount == "0 0" or amount == "":
             break
         plotter.move_st(int(amount.split()[0]), int(amount.split()[1]))
-    # plotter.move_st(0, 6250)
-    # plotter.move(100, 0)
-    # plotter.move(0, 100)
-    # plotter.move(-100, 0)
-    # plotter.move(0, -100)
     while True:
         amount = input("x y:")
         if amount == "0 0" or amount == "":
             break
-        plotter.move(int(amount.split()[0]), int(amount.split()[1]))
+        plotter.move_to_xy(int(amount.split()[0]), int(amount.split()[1]))
 
     print("s, t, w = " + str(plotter.get_stw_pos()))
     print("Plotter Finished")
