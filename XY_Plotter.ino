@@ -68,7 +68,7 @@ void moveSteppers() {
   int stepsComplete[2];
   stepsComplete[small] = 0;
   stepsComplete[big] = 0;
-  while (abs(stepsComplete[small]) < abs(deltas[small])) {
+  while (abs(stepsComplete[big]) < abs(deltas[big])) {
 
     //Step bigger one
     if (deltas[big] > 0) {
@@ -145,9 +145,9 @@ void loop() {
     deltas[0] = -Serial.parseInt();
 
     Serial.print("positions: ");
-    Serial.print(deltas[0], DEC);
-    Serial.print(" ");
     Serial.print(deltas[1], DEC);
+    Serial.print(" ");
+    Serial.print(-deltas[0], DEC);
     Serial.print("\n");
 
     moveSteppers();
