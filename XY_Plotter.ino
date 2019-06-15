@@ -20,6 +20,7 @@ Servo myservo;
 const int SERVO_PIN = 3;
 const int PEN_DOWN_POS = 145;
 const int PEN_UP_POS = 155;
+const int DELAY_BETWEEN_STEPS = 4; //minimum of 4 ms between stepper motor steps
 
 // The sequence 1-3-2-4 is required for proper sequencing of 28BYJ48
 Stepper *steppers[2];
@@ -47,7 +48,6 @@ int readByte() {
 }
 
 void moveSteppers() {
-  if (deltas[0] == 0 && deltas[1] == 0) return;
   
   int small, big;
   if (abs(deltas[0]) < abs(deltas[1])) {
@@ -94,7 +94,7 @@ void moveSteppers() {
       }
     }
     
-    delay(4);
+    delay(DELAY_BETWEEN_STEPS);
   }
 
   //Finish any remaining steps
@@ -107,7 +107,7 @@ void moveSteppers() {
       stepsComplete[small]--;
     }
 
-    delay(4);
+    delay(DELAY_BETWEEN_STEPS);
   }
 }
 
