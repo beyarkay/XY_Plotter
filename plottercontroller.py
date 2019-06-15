@@ -4,14 +4,18 @@ import time
 
 
 class PlotterController:
-    def __init__(self, port_regex='/dev/cu.usbmodem14101'):
-        available_ports = list_ports.grep(port_regex)
-        if len(available_ports) == 1:
-            self.ser = serial.Serial(available_ports[0], 9600)
-            # Wait a bit for the Arduino to get a nice connection (;
-            time.sleep(2)
-        else:
+    def __init__(self, port_regex=r'(/dev/cu.usbmodem).{6}'):
+        available_ports = list(list_ports.grep(port_regex))
 
+
+        if len(available_ports) == 1:
+            # print(available_ports[0].device)
+            self.ser = serial.Serial(available_ports[0].device, 9600)
+            # Wait a bit for the Arduino to get a nice connection (;
+        else:
+            print(available_ports)
+            self.ser = serial.Serial(input("Which port?: "), 9600)
+        time.sleep(2)
 
     def close(self):
         self.ser.close()
