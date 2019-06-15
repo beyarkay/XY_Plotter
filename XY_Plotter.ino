@@ -141,13 +141,13 @@ void loop() {
   } else if (incomingByte == 'm') {
     Serial.print("received move command\n");
 
-    deltas[1] = Serial.parseInt();
-    deltas[0] = -Serial.parseInt();
+    deltas[1] = -Serial.parseInt();
+    deltas[0] = Serial.parseInt();
 
     Serial.print("positions: ");
-    Serial.print(deltas[1], DEC);
+    Serial.print(-deltas[1], DEC);
     Serial.print(" ");
-    Serial.print(-deltas[0], DEC);
+    Serial.print(deltas[0], DEC);
     Serial.print("\n");
 
     moveSteppers();
