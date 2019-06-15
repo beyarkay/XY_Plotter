@@ -63,7 +63,7 @@ class Plotter(object):
             self.plotter_controller.move(-75, 0)
 
             while True:
-                amount = input("Move stepper S upwards by [integer]: ")
+                amount = input("Move stepper S downwards by [integer]: ")
                 if amount == "0" or amount == "":
                     break
                 self.plotter_controller.move(int(amount), 0)
@@ -74,7 +74,7 @@ class Plotter(object):
             self.plotter_controller.move(0, -75)
             print("Stepper T going to home.")
             while True:
-                amount = input("Move stepper T upwards by [integer]: ")
+                amount = input("Move stepper T downwards by [integer]: ")
                 if amount == "0" or amount == "":
                     break
                 self.plotter_controller.move(0, int(amount))
@@ -120,18 +120,22 @@ class Plotter(object):
 
 if __name__ == '__main__':
     plotter = Plotter()
-    plotter.calibrate()
+    
+    for x in range(100, 7100, 100):
+        plotter.move_to_xy(x, 7000)
+        time.sleep(0.5)
+    # plotter.calibrate()
 
-    while True:
-        amount = input("s t:")
-        if amount == "0 0" or amount == "":
-            break
-        plotter.move_st(int(amount.split()[0]), int(amount.split()[1]))
-    while True:
-        amount = input("x y:")
-        if amount == "0 0" or amount == "":
-            break
-        plotter.move_to_xy(int(amount.split()[0]), int(amount.split()[1]))
+    # while True:
+    #     amount = input("s t:")
+    #     if amount == "0 0" or amount == "":
+    #         break
+    #     plotter.move_st(int(amount.split()[0]), int(amount.split()[1]))
+    # while True:
+    #     amount = input("x y:")
+    #     if amount == "0 0" or amount == "":
+    #         break
+    #     plotter.move_to_xy(int(amount.split()[0]), int(amount.split()[1]))
 
     print("s, t, w = " + str(plotter.get_stw_pos()))
     print("Plotter Finished")
