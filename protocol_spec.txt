@@ -1,0 +1,13 @@
+PROTOCOL:
+
+'p' 'u'/'d' \n
+set pen up/down
+
+'m' <stepper_1_target_position> <stepper_2_target_position> \n
+move pen to target positions
+
+'s' <stepper_1_position> <stepper_2_position> \n
+set current positions of stepper motors (used in calibration)
+
+This does not move the stepper motors.
+This just sets the Arduino AccelStepper internal position variables.
