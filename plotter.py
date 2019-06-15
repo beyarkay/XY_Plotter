@@ -11,21 +11,21 @@ class Plotter(object):
         self.plotter_controller = PlotterController()
         self.STEPS_PER_CM = 1000 / 4
         self.file = None
-        
+
         self.restore_stw()
-    
+
     def save_stw(self):
         with open('save.txt', 'w') as self.file:
             print(self.s, file=self.file)
             print(self.t, file=self.file)
             print(self.w, file=self.file)
-    
+
     def restore_stw(self):
         with open('save.txt', 'r') as self.file:
             self.s = int(next(self.file))
             self.t = int(next(self.file))
             self.w = int(next(self.file))
-    
+
     def move_to_st(self, s, t):
         self.move_st(s - self.s, t - self.t)
 
@@ -42,10 +42,10 @@ class Plotter(object):
         delta_t = math.floor(math.sqrt((self.w - delta_x) ** 2 + delta_y ** 2))
         self.move_st(delta_s, delta_t)
         print("s, t, w = " + str(self.get_stw_pos()))
-    
+
     def move_to_xy(self, x, y):
-        s = int(math.sqrt(x**2 + y**2))
-        t = int(math.sqrt((self.w - x)**2 + y**2))
+        s = int(math.sqrt(x ** 2 + y ** 2))
+        t = int(math.sqrt((self.w - x) ** 2 + y ** 2))
         self.move_to_st(s, t)
         self.save_stw()
 
@@ -91,6 +91,28 @@ class Plotter(object):
             self.w = self.s
         print(f"Calibration complete, s={self.s}, t={self.t}, w={self.w}")
         self.save_stw()
+
+    def easy_calibrate(self):
+        print("Welcome to easy calibration!© We appreciate your patronage")
+
+        print("Move the module underneath the left stepper")
+        while True:
+            amount = input("Move s t:")
+            if amount == "0 0" or amount == "":
+                break
+            plotter.move_st(int(amount.split()[0]), int(amount.split()[1]))
+        self.s = 0
+
+        print("Move the module underneath the right stepper")
+        while True:
+            amount = input("Move s t:")
+            if amount == "0 0" or amount == "":
+                break
+            plotter.move_st(int(amount.split()[0]), int(amount.split()[1]))
+        self.w = self.s
+        self.t = 0
+        self.save_stw()
+        print(f"Calibration complete! s={self.s}, t={self.t}, w={self.w}")
 
     def get_stw_pos(self):
         return self.s, self.t, self.w
