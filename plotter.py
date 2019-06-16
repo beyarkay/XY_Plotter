@@ -29,6 +29,12 @@ class Plotter(object):
             self.t = int(next(self.file))
             self.w = int(next(self.file))
 
+    def pen_up(self):
+        self.plotter_controller.pen_up()
+
+    def pen_down(self):
+        self.plotter_controller.pen_down()
+
     def move_to_st(self, s, t):
         self.move_st(s - self.s, t - self.t)
 
@@ -123,18 +129,22 @@ class Plotter(object):
 
 if __name__ == '__main__':
     plotter = Plotter()
-    plotter.calibrate()
 
-    while True:
-        amount = input("s t:")
-        if amount == "0 0" or amount == "":
-            break
-        plotter.move_st(int(amount.split()[0]), int(amount.split()[1]))
-    while True:
-        amount = input("x y:")
-        if amount == "0 0" or amount == "":
-            break
-        plotter.move_to_xy(int(amount.split()[0]), int(amount.split()[1]))
+    for x in range(100, 7100, 100):
+        plotter.move_to_xy(x, 7000)
+        time.sleep(0.5)
+    # plotter.calibrate()
+
+    # while True:
+    #     amount = input("s t:")
+    #     if amount == "0 0" or amount == "":
+    #         break
+    #     plotter.move_st(int(amount.split()[0]), int(amount.split()[1]))
+    # while True:
+    #     amount = input("x y:")
+    #     if amount == "0 0" or amount == "":
+    #         break
+    #     plotter.move_to_xy(int(amount.split()[0]), int(amount.split()[1]))
 
     print("s, t, w = " + str(plotter.get_stw_pos()))
     print("Plotter Finished")

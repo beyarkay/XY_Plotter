@@ -18,8 +18,8 @@
 
 Servo myservo;
 const int SERVO_PIN = 3;
-const int PEN_DOWN_POS = 145;
-const int PEN_UP_POS = 155;
+const int PEN_DOWN_POS = 175;
+const int PEN_UP_POS = 145;
 const int DELAY_BETWEEN_STEPS = 4; //minimum of 4 ms between stepper motor steps
 
 // The sequence 1-3-2-4 is required for proper sequencing of 28BYJ48
