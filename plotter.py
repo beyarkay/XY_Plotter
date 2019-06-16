@@ -11,8 +11,11 @@ class Plotter(object):
         self.plotter_controller = PlotterController()
         self.STEPS_PER_CM = 1000 / 4
         self.file = None
-
         self.restore_stw()
+        self.plotter_controller.move(75, 75)
+        self.plotter_controller.pen_down()
+        self.plotter_controller.move(-75, -75)
+        self.plotter_controller.pen_up()
 
     def save_stw(self):
         with open('save.txt', 'w') as self.file:
