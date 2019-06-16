@@ -8,7 +8,7 @@ class PlotterController:
     By default:
         * Stepper motor 1 is named S, and is on the LEFT
         * Stepper motor 2 is named T, and is on the RIGHT
-        * Both steppers will wind in clockwise, and wind out counter-clockwise
+        * Both steppers wind out clockwise, and wind in counter-clockwise
         * Decreasing the s or t values will decrease the length of the string, winding the module upwards
     """
     def __init__(self, port_regex=r'(/dev/cu.usbmodem)'):

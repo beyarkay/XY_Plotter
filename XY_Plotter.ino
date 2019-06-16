@@ -3,7 +3,7 @@
 
 
 // Possibly a good explanation of the AccelStepper Library: https://42bots.com/tutorials/28byj-48-stepper-motor-with-uln2003-driver-and-arduino-uno/
-// Define step constants
+// Define step constants. Only used for AccelSteppers
 #define FULLSTEP 4  // Used for running AccelSteppers in half steps
 #define HALFSTEP 8  // Used for running AccelSteppers in half steps
 
@@ -22,7 +22,7 @@ Servo pen_servo;
 const int SERVO_PIN = 3;
 const int PEN_DOWN_POS = 175;
 const int PEN_UP_POS = 145;
-const int DELAY_BETWEEN_STEPS = 4; //minimum of 4 ms between stepper motor steps
+const int DELAY_BETWEEN_STEPS = 2; //minimum of 2 ms between stepper motor steps
 // Gearing ratio inside the 28BYJ-48 stepper is 63.68395:1, resulting in a funky steps per revolution
 const int STEPS_PER_REVOLUTION = 4076;
 
@@ -32,31 +32,48 @@ Stepper *steppers[2];
 Stepper stepper_s(STEPS_PER_REVOLUTION, stepper_s_pin_1, stepper_s_pin_3, stepper_s_pin_2, stepper_s_pin_4);
 Stepper stepper_t(STEPS_PER_REVOLUTION, stepper_t_pin_1, stepper_t_pin_3, stepper_t_pin_2, stepper_t_pin_4);
 
+
+long last_active_at = millis();
 long deltas[2]; //array to be used for target movements for each stepper
 
 void penDown() {
   /*
-   * Move the pen down, to position PEN_DOWN_POS
-   */
-  Serial.println("Pen down, LED on");
+     Move the pen down, to position PEN_DOWN_POS
+  */
+  Serial.println("Pen down, (and LED on)");
   pen_servo.write(PEN_DOWN_POS);
   digitalWrite(LED_BUILTIN, HIGH);
+  last_active_at = millis();
 }
 
 void penUp() {
   /*
-   * Move the pen up, to position PEN_UP_POS
-   */
+     Move the pen up, to position PEN_UP_POS
+  */
   Serial.println("Pen up, LED off");
   pen_servo.write(PEN_UP_POS);
   digitalWrite(LED_BUILTIN, LOW);
+  last_active_at = millis();
+}
+
+void turnOff() {
+  digitalWrite(stepper_s_pin_1, LOW);
+  digitalWrite(stepper_s_pin_2, LOW);
+  digitalWrite(stepper_s_pin_3, LOW);
+  digitalWrite(stepper_s_pin_4, LOW);
+
+  digitalWrite(stepper_t_pin_1, LOW);
+  digitalWrite(stepper_t_pin_2, LOW);
+  digitalWrite(stepper_t_pin_3, LOW);
+  digitalWrite(stepper_t_pin_4, LOW);
+  last_active_at = millis();
 }
 
 int readByte() {
   /*
-   * Wait until a byte is available, then read and return it
-   */
-  while(Serial.available() == 0);
+     Wait until a byte is available, then read and return it
+  */
+  while (Serial.available() == 0);
   return Serial.read();
 }
 
@@ -128,43 +145,45 @@ void moveSteppers() {
 
     delay(DELAY_BETWEEN_STEPS);
   }
+  last_active_at = millis();
 }
 
 void setup() {
   /*
-   * Start the Serial
-   * Configure output pins
-   * Initialise the steppers
-   * Move the pen up
-   */
+     Start the Serial
+     Configure output pins
+     Initialise the steppers
+     Move the pen up
+  */
   Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
   pen_servo.attach(SERVO_PIN);
 
   steppers[0] = &stepper_s;
   steppers[1] = &stepper_t;
-  
+
   penUp();
 }
 
 void loop() {
   /*
-   * Each loop, read the incoming bytes:
-   * - pu: Move the pen up
-   * - pd: Move the pen down
-   * - m SSSS, TTTT: move the S and T steppers by SSSS and TTTT respectively
-   * - o: Turn off all the coils for the stepper motors to stop overheating. 
-   *      Causes loss of control while power is off 
-   */
+     Each loop, read the incoming bytes:
+     - pu: Move the pen up
+     - pd: Move the pen down
+     - m SSSS, TTTT: move the S and T steppers by SSSS and TTTT respectively
+     - o: Turn off all the coils for the stepper motors to stop overheating.
+          Causes loss of control while power is off
+  */
 
-//  int incomingByte;
-//  incomingByte = readByte();
-    int incomingByte = readByte();
+  if (millis() - last_active_at > 30000) {
+    turnOff();
+  }
 
+  int incomingByte = readByte();
 
-  switch (incomingByte){
+  switch (incomingByte) {
     case 'p':
-      Serial.println("Received pen control command");
+      Serial.print("Pen control command: ");
       incomingByte = readByte();
 
       if (incomingByte == 'u') {
@@ -172,85 +191,35 @@ void loop() {
       } else if (incomingByte == 'd') {
         penDown();
       } else {
-        Serial.print("Second byte ('")
-        Serial.print(incomingByte)
+        Serial.print("Second byte ('");
+        Serial.write(incomingByte); // Use write for sending single bytes
         Serial.println("') of up/down command is invalid");
       }
+      break;
     case 'm':
-      Serial.println("Received move command");
+      Serial.print("Received move command: ");
 
       deltas[0] = Serial.parseInt();
       deltas[1] = Serial.parseInt();
 
-      Serial.print("positions: ");
+      Serial.print("s, t = ");
       Serial.print(deltas[0], DEC);
-      Serial.print(" ");
+      Serial.print(", ");
       Serial.println(deltas[1], DEC);
 
       moveSteppers();
+      break;
     case 'o':
       // OFF command: Write all the stepper motor pins to LOW, to stop them overheating
       Serial.println("Received turn_off command");
-      digitalWrite(stepper_s_pin_1, LOW);
-      digitalWrite(stepper_s_pin_2, LOW);
-      digitalWrite(stepper_s_pin_3, LOW);
-      digitalWrite(stepper_s_pin_4, LOW);
-
-      digitalWrite(stepper_t_pin_1, LOW);
-      digitalWrite(stepper_t_pin_2, LOW);
-      digitalWrite(stepper_t_pin_3, LOW);
-      digitalWrite(stepper_t_pin_4, LOW);
-    default:  
-      Serial.print("First byte ('")                
-      Serial.print(incomingByte)                   
-      Serial.println("') of command is invalid");  
+      turnOff();
+      break;
+    default:
+      Serial.print("First byte ('");
+      Serial.write(incomingByte); // Use write for sending single bytes
+      Serial.println("') of command is invalid");
+      break;
   }
-
-//  if (incomingByte == 'p') {
-//    Serial.println("Received pen control command");
-//    incomingByte = readByte();
-//
-//    if (incomingByte == 'u') {
-//      penUp();
-//    } else if (incomingByte == 'd') {
-//      penDown();
-//    } else {
-//      Serial.print("Second byte ('")
-//      Serial.print(incomingByte)
-//      Serial.println("') of up/down command is invalid");
-//    }
-//  } else if (incomingByte == 'm') {
-//    Serial.print("Received move command\n");
-//
-//    deltas[1] = -Serial.parseInt();
-//    deltas[0] = Serial.parseInt();
-//
-//    Serial.print("positions: ");
-//    Serial.print(-deltas[1], DEC);
-//    Serial.print(" ");
-//    Serial.print(deltas[0], DEC);
-//    Serial.print("\n");
-//
-//    moveSteppers();
-//
-//  } else if (incomingByte == 'o'){
-//    // OFF command: Write all the stepper motor pins to LOW, to stop them overheating
-//    Serial.print("Received turn_off command\n");
-//    digitalWrite(stepper_s_pin_1, LOW);
-//    digitalWrite(stepper_s_pin_2, LOW);
-//    digitalWrite(stepper_s_pin_3, LOW);
-//    digitalWrite(stepper_s_pin_4, LOW);
-//
-//    digitalWrite(stepper_t_pin_1, LOW);
-//    digitalWrite(stepper_t_pin_2, LOW);
-//    digitalWrite(stepper_t_pin_3, LOW);
-//    digitalWrite(stepper_t_pin_4, LOW);
-//
-//  } else {
-//    Serial.print("First byte ('")
-//    Serial.print(incomingByte)
-//    Serial.print("') of command is invalid\n");
-//  }
   readByte(); //ignore the newline character
 
 }
