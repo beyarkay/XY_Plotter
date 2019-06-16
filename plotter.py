@@ -156,6 +156,6 @@ if __name__ == '__main__':
     #     plotter.move_to_xy(x, 7000)
     #     time.sleep(0.5)
 
-    input("TURN OFF THE STEPPERS OR YOU'LL BE PIPED TO dev/null [okay/yes master]")
+    input("TURN OFF THE STEPPERS OR YOU'LL BE REDIRECTED TO dev/null [okay/yes]: ")
     print("s, t, w = " + str(plotter.get_stw_pos()))
-    print("Plotter Finished\nTURN OFF THE STEPPERS!")
+    print("Plotter Finished\n\nYOU DID TURN OFF THE STEPPERS, RIGHT?")

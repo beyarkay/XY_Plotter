@@ -155,6 +155,7 @@ void loop() {
     moveSteppers();
     
   } else if (incomingByte == 'o'){
+    // OFF command: Write all the stepper motor pins to LOW, to stop them overheating
     Serial.print("Received turn_off command\n");
     digitalWrite(motorPin1, LOW);
     digitalWrite(motorPin2, LOW);
