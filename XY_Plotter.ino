@@ -128,18 +128,20 @@ void loop() {
   incomingByte = readByte();
 
   if (incomingByte == 'p') {
-    Serial.print("received pen control command\n");
-    
+    Serial.print("Received pen control command\n");
     incomingByte = readByte();
+
     if (incomingByte == 'u') {
       penUp();
     } else if (incomingByte == 'd') {
       penDown();
     } else {
-      Serial.print("second byte of up/down command is invalid\n");
+      Serial.print("Second byte ('")
+      Serial.print(incomingByte)
+      Serial.print("') of up/down command is invalid\n");
     }
   } else if (incomingByte == 'm') {
-    Serial.print("received move command\n");
+    Serial.print("Received move command\n");
 
     deltas[1] = -Serial.parseInt();
     deltas[0] = Serial.parseInt();
@@ -151,8 +153,23 @@ void loop() {
     Serial.print("\n");
 
     moveSteppers();
+    
+  } else if (incomingByte == 'o'){
+    Serial.print("Received turn_off command\n");
+    digitalWrite(motorPin1, LOW);
+    digitalWrite(motorPin2, LOW);
+    digitalWrite(motorPin3, LOW);
+    digitalWrite(motorPin4, LOW);
+
+    digitalWrite(motorPin5, LOW);
+    digitalWrite(motorPin6, LOW);
+    digitalWrite(motorPin7, LOW);
+    digitalWrite(motorPin8, LOW);
+    
   } else {
-    Serial.print("first byte of command is invalid\n");
+    Serial.print("First byte ('")
+    Serial.print(incomingByte)
+    Serial.print("') of command is invalid\n");
   }
   readByte(); //ignore newline
 

@@ -35,3 +35,14 @@ class PlotterController:
         :return:
         """
         self.ser.write('m {} {}\n'.format(s, t).encode())
+
+    def turn_off(self):
+        """
+        Cut power to all the coils in both steppers
+        The steppers will NOT keep their position in this state
+        No special command is required to wake them up, just send through a move command
+        The servo is not affected in any way
+        :return:
+        """
+        self.ser.write('o\n'.encode())
+

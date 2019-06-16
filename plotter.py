@@ -150,11 +150,12 @@ if __name__ == '__main__':
     if "y" == input("s, t, w = " + str(plotter.get_stw_pos()) + ", Do you want to calibrate?[y/n]: "):
         plotter.easy_calibrate()
 
-    plotter.control_from_cmd_line()
-
+    # plotter.control_from_cmd_line()
+    plotter.plotter_controller.move(-1000, -1000)
     # for x in range(100, 7100, 100):
     #     plotter.move_to_xy(x, 7000)
     #     time.sleep(0.5)
 
+    input("TURN OFF THE STEPPERS OR YOU'LL BE PIPED TO dev/null [okay/yes master]")
     print("s, t, w = " + str(plotter.get_stw_pos()))
-    print("Plotter Finished")
+    print("Plotter Finished\nTURN OFF THE STEPPERS!")
