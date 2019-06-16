@@ -12,10 +12,11 @@ class Plotter(object):
         self.STEPS_PER_CM = 1000 / 4
         self.file = None
         self.restore_stw()
-        self.plotter_controller.move(75, 75)
-        self.plotter_controller.pen_down()
-        self.plotter_controller.move(-75, -75)
-        self.plotter_controller.pen_up()
+        # Wiggle all the actuators, to check let the user know the serial connection is working
+        self.move_st(75, 75)
+        self.pen_down()
+        self.move_st(-75, -75)
+        self.pen_up()
 
     def save_stw(self):
         with open('save.txt', 'w') as self.file:
@@ -130,21 +131,24 @@ class Plotter(object):
 if __name__ == '__main__':
     plotter = Plotter()
 
-    for x in range(100, 7100, 100):
-        plotter.move_to_xy(x, 7000)
-        time.sleep(0.5)
-    # plotter.calibrate()
+    if "y" == input("s, t, w = " + str(plotter.get_stw_pos()) + ", Do you want to calibrate?[y/n]: "):
+        plotter.easy_calibrate()
+
+
+    # for x in range(100, 7100, 100):
+    #     plotter.move_to_xy(x, 7000)
+    #     time.sleep(0.5)
 
     # while True:
     #     amount = input("s t:")
     #     if amount == "0 0" or amount == "":
     #         break
     #     plotter.move_st(int(amount.split()[0]), int(amount.split()[1]))
-    # while True:
-    #     amount = input("x y:")
-    #     if amount == "0 0" or amount == "":
-    #         break
-    #     plotter.move_to_xy(int(amount.split()[0]), int(amount.split()[1]))
+    while True:
+        amount = input("x y:")
+        if amount == "0 0" or amount == "":
+            break
+        plotter.move_to_xy(int(amount.split()[0]), int(amount.split()[1]))
 
     print("s, t, w = " + str(plotter.get_stw_pos()))
     print("Plotter Finished")

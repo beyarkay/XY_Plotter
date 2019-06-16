@@ -7,14 +7,16 @@ class PlotterController:
     def __init__(self, port_regex=r'(/dev/cu.usbmodem)'):
         available_ports = list(list_ports.grep(port_regex))
 
-
+        while len(available_ports) == 0:
+            input("No ports detected that match r'(/dev/cu.usbmodem)'. Check the connection, then press Enter")
         if len(available_ports) == 1:
             # print(available_ports[0].device)
             self.ser = serial.Serial(available_ports[0].device, 9600)
             # Wait a bit for the Arduino to get a nice connection (;
         else:
             print(available_ports)
-            self.ser = serial.Serial(input("Which port?: "), 9600)
+            port = input("Which port?: ")
+            self.ser = serial.Serial(port, 9600)
         time.sleep(2)
 
     def close(self):
