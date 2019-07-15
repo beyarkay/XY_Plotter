@@ -1,5 +1,5 @@
-# XY Plotter
-An Arduino-based robotics project. This robot is anchored at the top corners of a drawing area, and then be able to move freely within the space, drawing as its silicon heart desires. 
+# XY Plotter - AKA PlotBot
+An Arduino-based robotics project. PlotBot is anchored at the top corners of a drawing area, and then is able to move freely within the space, drawing as its silicon heart desires. 
 [Youtube Video](https://youtu.be/Ub-ViXvHKfk)
 
 
