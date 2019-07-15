@@ -205,6 +205,42 @@ class Plotter(object):
                 self.control_using_xy(verbose=verbose)
             mode = input("Control the module using st or xy coordinates? [xy/st]: ")
 
+    def draw_square(self, side_length: int):
+        """
+        Draw a square
+        :param side_length:
+        :return:
+        """
+        self.move_to_xy(0, 0)                       # Top Left
+        self.pen_down()
+        self.move_to_xy(side_length, 0)             # Top Right
+        self.move_to_xy(side_length, side_length)   # Bottom Right
+        self.move_to_xy(0, side_length)             # Bottom Left
+        self.pen_up()
+
+    def draw_axes(self):
+        # Draw the horizontal axis
+        self.move_to_xy(0, self.w / 2)
+        self.pen_down()
+        self.move_to_xy(self.w, self.w / 2)
+        self.pen_up()
+
+
+        # Draw the vertical axis
+        self.move_to_xy(self.w / 2, 0)
+        self.pen_down()
+        self.move_to_xy(self.w / 2, self.w)
+        self.pen_up()
+
+
+    def draw_func(self, func):
+        x_vals = [x for x in range(-10, 10)]
+        y_vals = [func(x) for x in x_vals]
+
+        minimum = 0
+        maximum = self.w
+        x_mapped = [x for x in x_vals]
+
 
 if __name__ == '__main__':
     plotter = Plotter()
