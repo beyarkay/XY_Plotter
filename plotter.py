@@ -143,6 +143,7 @@ class Plotter(object):
             amount += " 0"
             s, t = int(amount.split()[0]), int(amount.split()[1])
             self.plotter_controller.move(s, t)
+            amount = input("s t:")
         self.s = 0
 
         print("Now move the module underneath the right stepper")
@@ -189,7 +190,7 @@ class Plotter(object):
             # Assume default of zero for the second argument if only one argument is given
             amount = amount + " 0"
             x, y = int(amount.split()[0]), int(amount.split()[1])
-            self.move_by_st(x, y, verbose=verbose)
+            self.move_to_xy(x, y, verbose=verbose)
             amount = input("x y:")
 
     def control_from_cmd_line(self, verbose=True):
@@ -197,13 +198,15 @@ class Plotter(object):
         Allow control of the module from the command line, with either xy or st coordinate
         systems. The user can choose either or switch between them at will
         """
-        mode = input("Control the module using st or xy coordinates? [xy/st]: ")
-        while mode in ["xy", "st"]:
+        mode = input("Control the module using st or xy coordinates? [xy/st/draw]: ")
+        while mode in ["xy", "st", "draw"]:
             if mode == "st":
                 self.control_using_st(verbose=verbose)
             if mode == "xy":
                 self.control_using_xy(verbose=verbose)
-            mode = input("Control the module using st or xy coordinates? [xy/st]: ")
+            if mode == "draw":
+                self.draw_square(4000)
+            mode = input("Control the module using st or xy coordinates? [xy/st/draw]: ")
 
     def draw_square(self, side_length: int):
         """
@@ -211,35 +214,74 @@ class Plotter(object):
         :param side_length:
         :return:
         """
-        self.move_to_xy(0, 0)                       # Top Left
+
+        middle = self.w / 2
+        half_side = side_length / 2
+        self.move_to_xy(middle - half_side, middle - half_side)  # Top Left
+        time.sleep(5)
+
         self.pen_down()
-        self.move_to_xy(side_length, 0)             # Top Right
-        self.move_to_xy(side_length, side_length)   # Bottom Right
-        self.move_to_xy(0, side_length)             # Bottom Left
+        time.sleep(1)
+
+        self.move_to_xy(middle + half_side, middle - half_side)  # Top Right
+        time.sleep(5)
+
+        self.move_to_xy(middle + half_side, middle + half_side)  # Bottom Right
+        time.sleep(5)
+
+        self.move_to_xy(middle - half_side, middle + half_side)  # Bottom Left
+        time.sleep(5)
+
+        self.move_to_xy(middle - half_side, middle - half_side)  # Top Left
+
+        time.sleep(1)
         self.pen_up()
 
     def draw_axes(self):
         # Draw the horizontal axis
         self.move_to_xy(0, self.w / 2)
-        self.pen_down()
-        self.move_to_xy(self.w, self.w / 2)
-        self.pen_up()
+        time.sleep(5)
 
+        self.pen_down()
+        time.sleep(1)
+
+        self.move_to_xy(self.w, self.w / 2)
+        time.sleep(5)
+
+        self.pen_up()
+        time.sleep(1)
 
         # Draw the vertical axis
         self.move_to_xy(self.w / 2, 0)
+        time.sleep(5)
+
         self.pen_down()
+        time.sleep(1)
+
         self.move_to_xy(self.w / 2, self.w)
+        time.sleep(5)
+
         self.pen_up()
+        time.sleep(1)
+
+    def draw_func(self, func=None):
+        if not func:
+            func = math.pow
+        in_min = -10
+        in_max = 10
+        x_vals = [x for x in range(in_min, in_max)]
+        y_vals = [func(x, 2) for x in x_vals]
+
+        out_min = 0
+        out_max = self.w
+        # out_max = 12500
+        x_mapped = [((x + abs(min(x_vals))) / (max(x_vals) - min(x_vals))) * (out_max - out_min) + out_min for x in x_vals]
+        y_mapped = [((y + abs(min(y_vals))) / (max(y_vals) - min(y_vals))) * (out_max - out_min) + out_min for y in y_vals]
+
+        print(x_mapped)
+        print(y_mapped)
 
 
-    def draw_func(self, func):
-        x_vals = [x for x in range(-10, 10)]
-        y_vals = [func(x) for x in x_vals]
-
-        minimum = 0
-        maximum = self.w
-        x_mapped = [x for x in x_vals]
 
 
 if __name__ == '__main__':
@@ -247,6 +289,7 @@ if __name__ == '__main__':
     if "y" == input("s, t, w = " + str(plotter.get_stw_pos()) + ", Do you want to calibrate?[y/n]: "):
         plotter.easy_calibrate()
 
+    plotter.draw_func()
     plotter.control_from_cmd_line()
     # for x in range(100, 7100, 100):
     #     plotter.move_to_xy(x, 7000)
