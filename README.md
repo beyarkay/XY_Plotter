@@ -1,6 +1,6 @@
 # XY Plotter
 An Arduino-based robotics project. This robot is anchored at the top corners of a drawing area, and then be able to move freely within the space, drawing as its silicon heart desires. 
-
+[Youtube Video](https://youtu.be/Ub-ViXvHKfk)
 
 
 ![image1](readme_files/PB1.png)
@@ -12,8 +12,6 @@ An Arduino-based robotics project. This robot is anchored at the top corners of 
 ![image1](readme_files/PB4.png)
 
 ![image1](readme_files/PB5.png)
-
-<video src="readme_files/PlotBot.mp4" poster="readme_files/PlotBot_Cover.tiff" width="320" height="200" controls preload></video>
 
 
 ## Features
