@@ -13,6 +13,8 @@ An Arduino-based robotics project. This robot is anchored at the top corners of 
 
 ![image1](readme_files/PB5.png)
 
+## Circuit Diagram
+![Circuit Diagam](readme_files/circuit_diagram.png)
 
 ## Features
 * Can move in its drawing space when given x,y co-ordinates, despite only being able to change its position based on the distance it is from each corner
