@@ -37,12 +37,14 @@ class PlotterController:
         Move the pen up
         """
         self.ser.write('pu\n'.encode())
+        self.ser.read(1)  # block until command complete byte is received
 
     def pen_down(self):
         """
         Move the pen down
         """
         self.ser.write('pd\n'.encode())
+        self.ser.read(1)  # block until command complete byte is received
 
     def move(self, s, t):
         """
@@ -51,6 +53,7 @@ class PlotterController:
         :return:
         """
         self.ser.write('m {} {}\n'.format(s, t).encode())
+        self.ser.read(1)  # block until command complete byte is received
 
     def turn_off(self):
         """
@@ -61,4 +64,5 @@ class PlotterController:
         :return:
         """
         self.ser.write('o\n'.encode())
+        self.ser.read(1)  # block until command complete byte is received
 

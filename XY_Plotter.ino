@@ -25,6 +25,7 @@ const int PEN_UP_POS = 145;
 const int DELAY_BETWEEN_STEPS = 2; //minimum of 2 ms between stepper motor steps
 // Gearing ratio inside the 28BYJ-48 stepper is 63.68395:1, resulting in a funky steps per revolution
 const int STEPS_PER_REVOLUTION = 4076;
+const char COMMAND_COMPLETE_BYTE = 'c';
 
 
 // The sequence 1-3-2-4 is required for proper sequencing of 28BYJ-48 stepper motors
@@ -40,7 +41,7 @@ void penDown() {
   /*
      Move the pen down, to position PEN_DOWN_POS
   */
-  Serial.println("Pen down, (and LED on)");
+//  Serial.println("Pen down, (and LED on)");
   pen_servo.write(PEN_DOWN_POS);
   digitalWrite(LED_BUILTIN, HIGH);
   last_active_at = millis();
@@ -50,7 +51,7 @@ void penUp() {
   /*
      Move the pen up, to position PEN_UP_POS
   */
-  Serial.println("Pen up, LED off");
+//  Serial.println("Pen up, LED off");
   pen_servo.write(PEN_UP_POS);
   digitalWrite(LED_BUILTIN, LOW);
   last_active_at = millis();
@@ -183,13 +184,15 @@ void loop() {
 
   switch (incomingByte) {
     case 'p':
-      Serial.print("Pen control command: ");
+//      Serial.print("Pen control command: ");
       incomingByte = readByte();
 
       if (incomingByte == 'u') {
         penUp();
+        Serial.print(COMMAND_COMPLETE_BYTE);
       } else if (incomingByte == 'd') {
         penDown();
+        Serial.print(COMMAND_COMPLETE_BYTE);
       } else {
         Serial.print("Second byte ('");
         Serial.write(incomingByte); // Use write for sending single bytes
@@ -197,22 +200,24 @@ void loop() {
       }
       break;
     case 'm':
-      Serial.print("Received move command: ");
+//      Serial.print("Received move command: ");
 
       deltas[0] = Serial.parseInt();
       deltas[1] = Serial.parseInt();
 
-      Serial.print("s, t = ");
-      Serial.print(deltas[0], DEC);
-      Serial.print(", ");
-      Serial.println(deltas[1], DEC);
+//      Serial.print("s, t = ");
+//      Serial.print(deltas[0], DEC);
+//      Serial.print(", ");
+//      Serial.println(deltas[1], DEC);
 
       moveSteppers();
+      Serial.print(COMMAND_COMPLETE_BYTE);
       break;
     case 'o':
       // OFF command: Write all the stepper motor pins to LOW, to stop them overheating
-      Serial.println("Received turn_off command");
+//      Serial.println("Received turn_off command");
       turnOff();
+      Serial.print(COMMAND_COMPLETE_BYTE);
       break;
     default:
       Serial.print("First byte ('");
