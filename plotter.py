@@ -2,11 +2,15 @@ import math
 
 from plottercontroller import *
 
+SEGMENT_LENGTH = 50  # shorter segments means straighter lines
+
 
 # TODO implement a get_xy() method
 
 class Plotter(object):
     def __init__(self):
+        self.x = None
+        self.y = None
         self.s = None
         self.t = None
         self.w = None
@@ -82,6 +86,24 @@ class Plotter(object):
         if verbose:
             print(f"Moving: x={x}, y={y}")
         self.move_to_st(s, t, verbose=verbose)
+        self.x = x
+        self.y = y
+    
+    def move_straight_to_xy(self, x, y):
+        if self.x is None:
+            self.move_to_xy(x, y)
+        else:
+            delta_x = x - self.x
+            delta_y = y - self.y
+            segments_remaining = int(math.sqrt(delta_x**2 + delta_y**2) // SEGMENT_LENGTH)  # number of segments is line length / SEGMENT_LENGTH
+            while segments_remaining > 0:
+                delta_x = x - self.x
+                delta_y = y - self.y
+                self.move_to_xy(self.x + delta_x//segments_remaining, self.y + delta_y//segments_remaining)
+                segments_remaining -= 1
+            
+            # move remaining distance
+            self.move_to_xy(x, y)
 
     def calibrate(self, s=None, t=None, w=None, verbose=True):
         """
@@ -218,51 +240,37 @@ class Plotter(object):
         middle = self.w / 2
         half_side = side_length / 2
         self.move_to_xy(middle - half_side, middle - half_side)  # Top Left
-        time.sleep(5)
 
         self.pen_down()
-        time.sleep(1)
 
-        self.move_to_xy(middle + half_side, middle - half_side)  # Top Right
-        time.sleep(5)
+        self.move_straight_to_xy(middle + half_side, middle - half_side)  # Top Right
 
-        self.move_to_xy(middle + half_side, middle + half_side)  # Bottom Right
-        time.sleep(5)
+        self.move_straight_to_xy(middle + half_side, middle + half_side)  # Bottom Right
 
-        self.move_to_xy(middle - half_side, middle + half_side)  # Bottom Left
-        time.sleep(5)
+        self.move_straight_to_xy(middle - half_side, middle + half_side)  # Bottom Left
 
-        self.move_to_xy(middle - half_side, middle - half_side)  # Top Left
+        self.move_straight_to_xy(middle - half_side, middle - half_side)  # Top Left
 
-        time.sleep(1)
         self.pen_up()
 
     def draw_axes(self):
         # Draw the horizontal axis
         self.move_to_xy(0, self.w / 2)
-        time.sleep(5)
 
         self.pen_down()
-        time.sleep(1)
 
-        self.move_to_xy(self.w, self.w / 2)
-        time.sleep(5)
+        self.move_straight_to_xy(self.w, self.w / 2)
 
         self.pen_up()
-        time.sleep(1)
 
         # Draw the vertical axis
         self.move_to_xy(self.w / 2, 0)
-        time.sleep(5)
 
         self.pen_down()
-        time.sleep(1)
 
-        self.move_to_xy(self.w / 2, self.w)
-        time.sleep(5)
+        self.move_straight_to_xy(self.w / 2, self.w)
 
         self.pen_up()
-        time.sleep(1)
 
     def draw_func(self, func=None):
         if not func:
