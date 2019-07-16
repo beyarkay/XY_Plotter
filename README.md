@@ -14,7 +14,17 @@ An Arduino-based robotics project. PlotBot is anchored at the top corners of a d
 ![image1](readme_files/PB5.png)
 
 ## Circuit Diagram
+
 ![Circuit Diagam](readme_files/circuit_diagram.png)
+
+## Bill of Materials
+* 2x Stepper motors 
+* 2x Stepper motor drivers
+* 1x servo with a drawing pen attached
+* Power supply
+* 1x Arduino Uno
+* Various Dupont cables
+
 
 ## Features
 * Can move in its drawing space when given x,y co-ordinates, despite only being able to change its position based on the distance it is from each corner
