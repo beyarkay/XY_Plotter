@@ -92,7 +92,6 @@ void moveSteppers() {
     index_of_small = 1;
     index_of_large = 0;
   }
-  // TODO what happens if deltas[index_of_large] == 0?
   // ratio * further_distance = shorter_distance
   float ratio = 0;
   if (deltas[index_of_large] != 0) {

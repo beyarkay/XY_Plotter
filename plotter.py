@@ -1,5 +1,5 @@
 import math
-
+from numpy import arange
 from plottercontroller import *
 
 SEGMENT_LENGTH = 50  # shorter segments means straighter lines
@@ -220,14 +220,16 @@ class Plotter(object):
         Allow control of the module from the command line, with either xy or st coordinate
         systems. The user can choose either or switch between them at will
         """
-        mode = input("Control the module using st or xy coordinates? [xy/st/draw]: ")
-        while mode in ["xy", "st", "draw"]:
+        mode = input("Choose control mode: [xy/st/draw/func]: ")
+        while mode in ["xy", "st", "draw", "func"]:
             if mode == "st":
                 self.control_using_st(verbose=verbose)
             if mode == "xy":
                 self.control_using_xy(verbose=verbose)
             if mode == "draw":
                 self.draw_square(4000)
+            if mode == "func":
+                self.draw_func()
             mode = input("Control the module using st or xy coordinates? [xy/st/draw]: ")
 
     def draw_square(self, side_length: int):
@@ -237,8 +239,10 @@ class Plotter(object):
         :return:
         """
 
-        middle = self.w / 2
+        # middle = self.w / 2
+        middle = 3000 + side_length / 2  # Make (3000,3000) be the top corner
         half_side = side_length / 2
+
         self.move_to_xy(middle - half_side, middle - half_side)  # Top Left
 
         self.pen_down()
@@ -273,23 +277,47 @@ class Plotter(object):
         self.pen_up()
 
     def draw_func(self, func=None):
+        func = None
+        functions = [math.exp, math.sin, math.tan]
         if not func:
-            func = math.pow
-        in_min = -10
-        in_max = 10
-        x_vals = [x for x in range(in_min, in_max)]
-        y_vals = [func(x, 2) for x in x_vals]
+            func = functions[1]
+        in_min = -2*math.pi
+        in_max = 2*math.pi
+        x_vals = [x for x in arange(in_min, in_max, math.pi/12)]
+        y_vals = []
+        for x in x_vals:
+            try:
+                y_vals.append(func(x))
+            except ValueError:
+                y_vals.append(0)
 
-        out_min = 0
-        out_max = self.w
+
+        out_min = 500
+        out_max = self.w - out_min
         # out_max = 12500
         x_mapped = [((x + abs(min(x_vals))) / (max(x_vals) - min(x_vals))) * (out_max - out_min) + out_min for x in x_vals]
+
+        draw_height = 4000
+        out_min = self.w / 2 - draw_height / 2
+        out_max = self.w / 2 + draw_height / 2
         y_mapped = [((y + abs(min(y_vals))) / (max(y_vals) - min(y_vals))) * (out_max - out_min) + out_min for y in y_vals]
 
-        print(x_mapped)
-        print(y_mapped)
+        print("\n".join(["\t".join([str(int(x)), str(int(y))]) for x, y in zip(x_mapped, y_mapped)]))
 
 
+        count = 0
+
+        for x, y in zip(x_mapped, y_mapped):
+            if count == 1:
+                self.pen_down()
+                time.sleep(2)
+            self.move_straight_to_xy(x, y)
+            count += 1
+            if len(x_mapped) % count == 10:
+                time.sleep(4)
+
+        self.pen_up()
+        time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -297,7 +325,7 @@ if __name__ == '__main__':
     if "y" == input("s, t, w = " + str(plotter.get_stw_pos()) + ", Do you want to calibrate?[y/n]: "):
         plotter.easy_calibrate()
 
-    plotter.draw_func()
+    # plotter.draw_func()
     plotter.control_from_cmd_line()
     # for x in range(100, 7100, 100):
     #     plotter.move_to_xy(x, 7000)

@@ -1,17 +1,16 @@
 # XY Plotter - AKA PlotBot
 An Arduino-based robotics project. PlotBot is anchored at the top corners of a drawing area, and then is able to move freely within the space, drawing as its silicon heart desires. 
-[Youtube Video](https://youtu.be/Ub-ViXvHKfk)
+[Youtube Video](https://youtu.be/_lssg5iOdFE) of PlotBot sketching sin(x).
 
 
-![image1](readme_files/PB1.png)
+![image1](readme_files/sin(x)-1.png)
 
-![image1](readme_files/PB2.png)
+![image1](readme_files/sin(x)-2.png)
 
-![image1](readme_files/PB3.png)
+![image1](readme_files/sin(x)-3.png)
 
-![image1](readme_files/PB4.png)
+![image1](readme_files/sin(x)-4.png)
 
-![image1](readme_files/PB5.png)
 
 ## Circuit Diagram
 
